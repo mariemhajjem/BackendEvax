@@ -1,5 +1,18 @@
 const Center = require("../models/center"); 
 
+const getCenters = async (req, res, next) => {
+  let centers;
+  try {
+    centers = await Center.find();
+  } catch (error) {
+    const err = new Error("Fetching centers failed. please try again!");
+    err.code = 500;
+    return next(err);
+  }
+  res.json({
+    centers: centers.map((center) => center.toObject({ getters: true })),
+  });
+};
 const getCenterById = async (req, res, next) => {
   const centerId = req.params.centerId;
 
@@ -47,11 +60,13 @@ const getCenterByName = async (req, res, next) => {
 };
  
 const addCenter = async (req, res, next) => {
-  const { name, typeofcenter,capacity } = req.body;
+  const { name,governorate, city,center_capacity,number_vaccine} = req.body;
   const createdCenter = new Center({
     name, 
-    typeofcenter,
-    capacity
+    governorate, 
+    city,
+    center_capacity,
+    number_vaccine
   });
 
   try {
@@ -91,7 +106,7 @@ const deposit = async (req, res, next) => {
     return next(err);
   }
 
-  center.overallAmount += Number(amount);
+  center.number_vaccine += Number(amount);
 
   try {
     await center.save();
@@ -125,8 +140,8 @@ const withdraw = async (req, res, next) => {
     return next(err);
   }
 
-  if (center.overallAmount > amount) {
-    center.overallAmount -= Number(amount);
+  if (center.number_vaccine > amount) {
+    center.number_vaccine -= Number(amount);
  
     try {
       await center.save();
@@ -145,8 +160,7 @@ const withdraw = async (req, res, next) => {
 };
 
 const deleteCenter = async (req, res, next) => {
-  const centerId = req.params.idcenter;
-  console.log(req.params.idcenter)
+  const centerId = req.params.idcenter; 
   let center;
   try {
     center = await Center.findById(centerId);
@@ -176,9 +190,10 @@ const deleteCenter = async (req, res, next) => {
   res.status(200).json({ center: center.toObject({ getters: true }) });
 };
  
-exports.withdraw = withdraw;
-exports.deposit = deposit;
+exports.withdraw        = withdraw;
+exports.deposit         = deposit;
 exports.getCenterByName = getCenterByName;
-exports.addCenter = addCenter;
-exports.getCenterById = getCenterById;
-exports.deleteCenter = deleteCenter; 
+exports.addCenter       = addCenter;
+exports.getCenterById   = getCenterById;
+exports.deleteCenter    = deleteCenter; 
+exports.getCenters      = getCenters;

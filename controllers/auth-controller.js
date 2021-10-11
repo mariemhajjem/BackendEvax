@@ -3,8 +3,8 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require('nodemailer');
 
 const User = require("../models/user");
-const creds = require('../config/contact');
-
+//const creds = require('../config/contact');
+const creds = require('../config/creds');
 var transport = {
   service: 'gmail',
   secure: false,
@@ -29,13 +29,13 @@ transporter.verify((error, success) => {
 });
 
 const generateCode = ()  => { 
-  const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
+  const characters = '01234567890'
    
-    let text = ''
-    for (let i = 0; i < 8; i++) {
-      text += characters.charAt(Math.floor(Math.random() * characters.length))
+    let code = ''
+    for (let i = 0; i < 9; i++) {
+      code += characters.charAt(Math.floor(Math.random() * characters.length))
     }
-    return text
+    return code
    
 }
 
@@ -93,15 +93,15 @@ const login = async (req, res, next) => {
   res.json({ userId: user.id, cin: user.cin, token: token });
 };
 
-const addUser = async (req, res, next) => {
+const register = async (req, res, next) => {
   const {
     cin, 
     password,
     firstname,
     lastname, 
     email,
-    birthday,
-    address } = req.body; 
+    address,
+    center } = req.body; 
   let addedUser;
   try {
     addedUser = await User.findOne({ cin: cin });
@@ -131,9 +131,9 @@ const addUser = async (req, res, next) => {
     password: hashPass,
     firstname,
     lastname,
-    email, 
-    birthday,
-    address
+    email,  
+    address,
+    center
   });
    
   try {
@@ -173,4 +173,4 @@ const addUser = async (req, res, next) => {
 };
 
 exports.login = login;
-exports.addUser = addUser;
+exports.register = register;

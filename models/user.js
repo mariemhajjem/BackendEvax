@@ -6,20 +6,25 @@ const userSchema = new mongoose.Schema({
   firstname: { type: String, required: true },
   lastname: { type: String, required: true },
   email: { type: String, required: true },
-  birthday: { type: Date, required: true },
-  address: {
-    governorate: { type: String, required: true }, 
-    delegation: { type: String, required: true },
-  },
+  birthday: { type: Date },
+  center: 
+	{
+		type: mongoose.Schema.Types.ObjectId,
+	 	ref: "Center"
+	},
+  creation_date: {
+		type: Date, 
+		default: Date.now
+	},
   role: {
-		type: String,
-		required: true,
+		type: String, 
 		enum: ['admin', 'enrolled', "operator", "volunteer"],
 		default: 'enrolled'
 	},
-	vaccinesDates: [
-		{ 
-			type: Date,  
+	vaccines: [
+		{
+			vaccine: { type: mongoose.Schema.Types.ObjectId, ref: "Vaccine"},
+			date: { type: Date,  default: Date.now}
 		}
 	]
 });
