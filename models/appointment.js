@@ -1,6 +1,4 @@
-const mongoose = require('mongoose');
-const Center = require('./center');
-const User = require('./user');
+const mongoose = require('mongoose'); 
 
 const appointSchema = mongoose.Schema({
     appointmentDate : { type : Date, required : true},
