@@ -5,8 +5,10 @@ const CenterController = require("../controllers/center-controller");
 router.get("/all", CenterController.getCenters); 
 router.post("/add", CenterController.addCenter); 
 router.get("/:idcenter", CenterController.getCenterById);
-router.delete("/delete/:idcenter", CenterController.deleteCenter);
-//router.get("/name/:numcenter", CenterController.getCenterByName);
+//router.delete("/delete/:idcenter", CenterController.deleteCenter);
+router.delete("/delete/:name", CenterController.deleteCenter);
+router.get("/name/:name", CenterController.getCenterByName);
+router.put("/update", CenterController.updateCenter);
 
 router.post("/:numcenter/deposit", CenterController.deposit);
 router.post("/:numcenter/withdraw", CenterController.withdraw); 

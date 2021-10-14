@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const centerSchema = new mongoose.Schema({
-  name: { type: String, required: true }, 
+  name: { type: String, required: true, unique:true }, 
   governorate: { type: String, required: true }, 
   city: { type: String, required: true },
   center_capacity: {

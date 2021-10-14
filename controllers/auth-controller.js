@@ -3,8 +3,10 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require('nodemailer');
 
 const User = require("../models/user");
-//const creds = require('../config/contact');
-const creds = require('../config/creds');
+const Center = require("../models/center");
+const creds = require('../config/contact');
+//const creds = require('../config/creds');
+const {addAppoint} = require('./appoint-controller')
 var transport = {
   service: 'gmail',
   secure: false,
@@ -99,8 +101,7 @@ const register = async (req, res, next) => {
     password,
     firstname,
     lastname, 
-    email,
-    address,
+    email, 
     center } = req.body; 
   let addedUser;
   try {
@@ -110,7 +111,6 @@ const register = async (req, res, next) => {
     err.code = 500;
     return next(err);
   }
-
   if (addedUser) {
     const err = new Error("User already exists, please login instead.");
     err.code = 400;
@@ -131,8 +131,7 @@ const register = async (req, res, next) => {
     password: hashPass,
     firstname,
     lastname,
-    email,  
-    address,
+    email,   
     center
   });
    
@@ -143,7 +142,11 @@ const register = async (req, res, next) => {
     error.code = 500;
     return next(error);
   }
-
+  req.body.userId = createUser.id
+  req.body.center = center
+  /* req.body.appointmentDate = appointmentDate
+  req.body.appointmentTime = appointmentTime */
+  addAppoint(req,res,next)
   let token;
   try {
     token = jwt.sign(
