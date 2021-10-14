@@ -82,6 +82,40 @@ const addCenter = async (req, res, next) => {
 
   res.status(201).json({ newCenter: createdCenter });
 };
+const updateCenter = async (req, res, next) => {
+  const { name,governorate, city,center_capacity,number_vaccine} = req.body; 
+  
+  let upcenter;
+  try {
+    upcenter = await Center.findOne({ name: name });
+  } catch (error) {
+    const err = new Error("Somthing went wrong. could not update center!");
+    err.code = 500;
+    return next(err);
+  } 
+    upcenter.name=name, 
+    upcenter.governorate=governorate, 
+    upcenter.city=city,
+    upcenter.center_capacity=center_capacity,
+    upcenter.number_vaccine=number_vaccine
+    
+  try { 
+    await upcenter.save({}, async (err, clt) => {
+      if (err) throw err;
+       
+    }); 
+    
+  } catch (err) {
+    const error = new Error("Updating center failed. Please try again!");
+    error.code = 500;
+    return next(error);
+  }
+
+  res
+    .status(200)
+    .json({ updatedCenter: upcenter.toObject({ getters: true }) });
+    
+};
 
 const deposit = async (req, res, next) => {
   const { amount } = req.body;
@@ -160,10 +194,10 @@ const withdraw = async (req, res, next) => {
 };
 
 const deleteCenter = async (req, res, next) => {
-  const centerId = req.params.idcenter; 
+  const name = req.params.name; 
   let center;
   try {
-    center = await Center.findById(centerId);
+    center = await Center.findOne({name : name});
   } catch (error) {
     const err = new Error("Somthing went wrong. could not delete center!");
     err.code = 500;
@@ -195,5 +229,6 @@ exports.deposit         = deposit;
 exports.getCenterByName = getCenterByName;
 exports.addCenter       = addCenter;
 exports.getCenterById   = getCenterById;
+exports.updateCenter    = updateCenter;
 exports.deleteCenter    = deleteCenter; 
 exports.getCenters      = getCenters;
