@@ -83,14 +83,19 @@ const addCenter = async (req, res, next) => {
   res.status(201).json({ newCenter: createdCenter });
 };
 const updateCenter = async (req, res, next) => {
-  const { name,governorate, city,center_capacity,number_vaccine} = req.body; 
+  const { id,name,governorate, city,center_capacity,number_vaccine} = req.body; 
   
   let upcenter;
   try {
-    upcenter = await Center.findOne({ name: name });
+    upcenter = await Center.findById(id)
   } catch (error) {
     const err = new Error("Somthing went wrong. could not update center!");
     err.code = 500;
+    return next(err);
+  } 
+  if(!upcenter){
+    const err = new Error("No center found with the provided id!");
+    err.code = 404;
     return next(err);
   } 
     upcenter.name=name, 
@@ -112,8 +117,8 @@ const updateCenter = async (req, res, next) => {
   }
 
   res
-    .status(200)
-    .json({ updatedCenter: upcenter.toObject({ getters: true }) });
+  .status(200)
+  .json({ updatedCenter: upcenter.toObject({ getters: true }) });
     
 };
 
