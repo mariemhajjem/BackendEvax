@@ -1,4 +1,4 @@
-const Center = require("../models/center"); 
+const Center = require("../models/center");
 
 const getCenters = async (req, res, next) => {
   let centers;
@@ -58,22 +58,19 @@ const getCenterByName = async (req, res, next) => {
 
   res.json({ center: center.toObject({ getters: true }) });
 };
- 
+
 const addCenter = async (req, res, next) => {
-  const { name,governorate, city,center_capacity,number_vaccine} = req.body;
+  const { name, governorate, city, center_capacity, number_vaccine } = req.body;
   const createdCenter = new Center({
-    name, 
-    governorate, 
+    name,
+    governorate,
     city,
     center_capacity,
-    number_vaccine
+    number_vaccine,
   });
 
   try {
-    await createdCenter.save({}, (err, center) => {
-      if (err) throw err;
-    }); 
-   
+    await createdCenter.save();
   } catch (errs) {
     const error = new Error("Creating center failed. Please try again!");
     error.code = 500;
@@ -83,43 +80,37 @@ const addCenter = async (req, res, next) => {
   res.status(201).json({ newCenter: createdCenter });
 };
 const updateCenter = async (req, res, next) => {
-  const { id,name,governorate, city,center_capacity,number_vaccine} = req.body; 
-  
+  const { id, name, governorate, city, center_capacity, number_vaccine } =
+    req.body;
+
   let upcenter;
   try {
-    upcenter = await Center.findById(id)
+    upcenter = await Center.findById(id);
   } catch (error) {
     const err = new Error("Somthing went wrong. could not update center!");
     err.code = 500;
     return next(err);
-  } 
-  if(!upcenter){
+  }
+  if (!upcenter) {
     const err = new Error("No center found with the provided id!");
     err.code = 404;
     return next(err);
-  } 
-    upcenter.name=name, 
-    upcenter.governorate=governorate, 
-    upcenter.city=city,
-    upcenter.center_capacity=center_capacity,
-    upcenter.number_vaccine=number_vaccine
-    
-  try { 
-    await upcenter.save({}, async (err, clt) => {
-      if (err) throw err;
-       
-    }); 
-    
+  }
+  (upcenter.name = name),
+    (upcenter.governorate = governorate),
+    (upcenter.city = city),
+    (upcenter.center_capacity = center_capacity),
+    (upcenter.number_vaccine = number_vaccine);
+
+  try {
+    await upcenter.save();
   } catch (err) {
     const error = new Error("Updating center failed. Please try again!");
     error.code = 500;
     return next(error);
   }
 
-  res
-  .status(200)
-  .json({ updatedCenter: upcenter.toObject({ getters: true }) });
-    
+  res.status(200).json({ updatedCenter: upcenter.toObject({ getters: true }) });
 };
 
 const deposit = async (req, res, next) => {
@@ -138,9 +129,7 @@ const deposit = async (req, res, next) => {
   }
 
   if (!center) {
-    const err = new Error(
-      "No center found with the provided Center Number!"
-    );
+    const err = new Error("No center found with the provided Center Number!");
     err.code = 500;
     return next(err);
   }
@@ -159,7 +148,7 @@ const deposit = async (req, res, next) => {
 };
 
 const withdraw = async (req, res, next) => {
-  const { amount} = req.body;
+  const { amount } = req.body;
   const name = req.params.name;
 
   let center;
@@ -172,23 +161,21 @@ const withdraw = async (req, res, next) => {
   }
 
   if (!center) {
-    const err = new Error(
-      "No center found with the provided Center Number!"
-    );
+    const err = new Error("No center found with the provided Center Number!");
     err.code = 500;
     return next(err);
   }
 
   if (center.number_vaccine > amount) {
     center.number_vaccine -= Number(amount);
- 
+
     try {
       await center.save();
     } catch (err) {
       const error = new Error("Operation failed. Please try again!");
       error.code = 500;
       return next(error);
-    } 
+    }
 
     res.status(200).json({ center: center.toObject({ getters: true }) });
   } else {
@@ -199,10 +186,10 @@ const withdraw = async (req, res, next) => {
 };
 
 const deleteCenter = async (req, res, next) => {
-  const name = req.params.name; 
+  const name = req.params.name;
   let center;
   try {
-    center = await Center.findOne({name : name});
+    center = await Center.findOne({ name: name });
   } catch (error) {
     const err = new Error("Somthing went wrong. could not delete center!");
     err.code = 500;
@@ -215,11 +202,11 @@ const deleteCenter = async (req, res, next) => {
     return next(err);
   }
 
-  try { 
-    await center.remove({ }, (err, clt) => {
+  try {
+    await center.remove({}, (err, clt) => {
       if (err) console.log(err);
       else console.log("deleted");
-    }); 
+    });
   } catch (err) {
     const error = new Error("Deleting center failed. Please try again!");
     error.code = 500;
@@ -228,12 +215,12 @@ const deleteCenter = async (req, res, next) => {
 
   res.status(200).json({ center: center.toObject({ getters: true }) });
 };
- 
-exports.withdraw        = withdraw;
-exports.deposit         = deposit;
+
+exports.withdraw = withdraw;
+exports.deposit = deposit;
 exports.getCenterByName = getCenterByName;
-exports.addCenter       = addCenter;
-exports.getCenterById   = getCenterById;
-exports.updateCenter    = updateCenter;
-exports.deleteCenter    = deleteCenter; 
-exports.getCenters      = getCenters;
+exports.addCenter = addCenter;
+exports.getCenterById = getCenterById;
+exports.updateCenter = updateCenter;
+exports.deleteCenter = deleteCenter;
+exports.getCenters = getCenters;
