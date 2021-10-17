@@ -38,11 +38,11 @@ const getPharmacyById = async (req, res, next) => {
 };
 
 const getPharmacyByName = async (req, res, next) => {
-  const NumPharmacy = req.params.name;
+  const namePharmacy = req.params.name;
 
   let pharmacy;
   try {
-    pharmacy = await Pharmacy.findOne({ name: NumPharmacy });
+    pharmacy = await Pharmacy.findOne({ name: namePharmacy });
   } catch (error) {
     const err = new Error(
       "Something went wrong. could not find pharmacy with number!"
@@ -190,11 +190,47 @@ const deletePharmacy = async (req, res, next) => {
 
   res.status(200).json({ pharmacy: pharmacy.toObject({ getters: true }) });
 };
+
+const updatePharmacy = async (req, res, next) => {
+  const { id, name, governorate, city, pharmacy_capacity, number_vaccine } =
+    req.body;
+
+  let upPharmacy;
+  try {
+    upPharmacy = await Pharmacy.findById(id);
+  } catch (error) {
+    const err = new Error("Somthing went wrong. could not update pharmacy!");
+    err.code = 500;
+    return next(err);
+  }
+  if (!upPharmacy) {
+    const err = new Error("No pharmacy found with the provided id!");
+    err.code = 404;
+    return next(err);
+  }
+  (upPharmacy.name = name),
+    (upPharmacy.governorate = governorate),
+    (upPharmacy.city = city),
+    (upPharmacy.pharmacy_capacity = pharmacy_capacity),
+    (upPharmacy.number_vaccine = number_vaccine || 0);
+
+  try {
+    await upPharmacy.save();
+  } catch (err) {
+    const error = new Error("Updating pharmacy failed. Please try again!");
+    error.code = 500;
+    return next(error);
+  }
+
+  res.status(200).json({ updatedPharmacy: upPharmacy.toObject({ getters: true }) });
+};
  
 exports.withdraw        = withdraw;
 exports.deposit         = deposit;
 exports.getPharmacyByName = getPharmacyByName;
 exports.addPharmacy       = addPharmacy;
+exports.updatePharmacy       = updatePharmacy;
 exports.getPharmacyById   = getPharmacyById;
 exports.deletePharmacy    = deletePharmacy; 
 exports.getPharmacies      = getPharmacies;
+
