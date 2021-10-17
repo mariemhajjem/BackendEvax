@@ -4,8 +4,8 @@ const nodemailer = require('nodemailer');
 
 const User = require("../models/user");
 const Center = require("../models/center");
-const creds = require('../config/contact');
-//const creds = require('../config/creds');
+//const creds = require('../config/contact');
+const creds = require('../config/creds');
 const {addAppoint} = require('./appoint-controller')
 var transport = {
   service: 'gmail',

@@ -191,6 +191,41 @@ const deletePharmacy = async (req, res, next) => {
   res.status(200).json({ pharmacy: pharmacy.toObject({ getters: true }) });
 };
 
+
+const deleteByNamePharmacy = async (req, res, next) => {
+  const name = req.params.name;
+  console.log(name);
+  let pharmacy;
+  try {
+    pharmacy = await Pharmacy.findOne({ name:name });
+  } catch (error) {
+
+    const err = new Error("Somthing went wrong. could not delete pharmacy!");
+    err.code = 500;
+    return next(err);
+  }
+
+  if (!pharmacy) {
+    const err = new Error("Delete failed, could not find Center!");
+    err.code = 500;
+    return next(err);
+  }
+
+  try {
+    await pharmacy.remove({}, (err, clt) => {
+      if (err) console.log(err);
+      else console.log("deleted");
+    });
+  } catch (err) {
+    const error = new Error("Deleting pharmacy failed. Please try again!");
+    error.code = 500;
+    return next(error);
+  }
+
+  res.status(200).json({ pharmacy: pharmacy.toObject({ getters: true }) });
+};
+
+
 const updatePharmacy = async (req, res, next) => {
   const { id, name, governorate, city, pharmacy_capacity, number_vaccine } =
     req.body;
@@ -233,4 +268,5 @@ exports.updatePharmacy       = updatePharmacy;
 exports.getPharmacyById   = getPharmacyById;
 exports.deletePharmacy    = deletePharmacy; 
 exports.getPharmacies      = getPharmacies;
+exports.deleteByNamePharmacy = deleteByNamePharmacy;
 

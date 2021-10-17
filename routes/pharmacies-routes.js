@@ -6,7 +6,8 @@ const PharmacyController = require("../controllers/pharmacy-controller");
 router.get("/all", PharmacyController.getPharmacies); 
 router.post("/add", PharmacyController.addPharmacy); 
 router.get("/:pharmacyId", PharmacyController.getPharmacyById);
-router.delete("/delete/:idpharmacy", PharmacyController.deletePharmacy);
+//router.delete("/delete/:idpharmacy", PharmacyController.deletePharmacy);
+router.delete("/delete/:name", PharmacyController.deleteByNamePharmacy);
 router.put("/update", PharmacyController.updatePharmacy);
 router.get("/name/:name", PharmacyController.getPharmacyByName);
 
