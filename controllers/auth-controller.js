@@ -44,8 +44,8 @@ const login = async (req, res, next) => {
   const {
     cin, 
     password, 
-     } = req.body;
-     console.log(req.body)
+  } = req.body;
+  
   let user;
   try {
     user = await User.findOne({ cin: cin });
@@ -80,16 +80,16 @@ const login = async (req, res, next) => {
 
   let token;
   try {
-    token = jwt.sign({ userId: user.id, cin: user.cin }, "center_code", {
-      expiresIn: "1d",
-    });
+    token = jwt.sign({ userId: user.id, cin: user.cin, role:user.role }, 
+      "center_code", 
+      {expiresIn: "1d"});
   } catch (err) {
     const error = new Error("logging user failed. Please try again!");
     error.code = 500;
     return next(error);
   }
 
-  res.json({ user: user, cin: user.cin, token: token });
+  res.json({ token: token });
 };
 
 const register = async (req, res, next) => {
@@ -116,7 +116,7 @@ const register = async (req, res, next) => {
     err.code = 500;
     return next(err);
   }
-
+  const code = generateCode();
   const createUser = new User({
     cin,
     password: hashPass,
@@ -124,8 +124,9 @@ const register = async (req, res, next) => {
     lastname,
     email,
     center,
+    code
   });
-
+  
   try {
     await createUser.save();
   } catch (errs) {
@@ -145,7 +146,7 @@ const register = async (req, res, next) => {
       "center_code",
       { expiresIn: "1d" }
     );
-    code = generateCode();
+    
     transporter.sendMail({
       to: req.body.email,
       from: "mariemhajjem10@gmail.com",

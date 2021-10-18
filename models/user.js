@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   lastname: { type: String, required: true },
   email: { type: String, required: true },
   birthday: { type: Date }, 
+  code: { type: String }, 
   creation_date: {
 		type: Date, 
 		default: Date.now
