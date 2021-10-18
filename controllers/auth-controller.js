@@ -4,8 +4,8 @@ const nodemailer = require('nodemailer');
 
 const User = require("../models/user");
 const Center = require("../models/center");
-//const creds = require('../config/contact');
-const creds = require('../config/creds');
+const creds = require('../config/contact');
+//const creds = require('../config/creds');
 const {addAppoint} = require('./appoint-controller')
 var transport = {
   service: 'gmail',
@@ -46,7 +46,7 @@ const login = async (req, res, next) => {
     cin, 
     password, 
      } = req.body;
-
+     console.log(req.body)
   let user;
   try {
     user = await User.findOne({ cin: cin });
@@ -92,7 +92,7 @@ const login = async (req, res, next) => {
     return next(error);
   }
 
-  res.json({ userId: user.id, cin: user.cin, token: token });
+  res.json({ user: user, cin: user.cin, token: token });
 };
 
 const register = async (req, res, next) => {
@@ -172,7 +172,7 @@ const register = async (req, res, next) => {
 
   res
     .status(201)
-    .json({ userId: createUser.id, cin: createUser.cin, token: token });
+    .json({ user: createUser, cin: createUser.cin, token: token });
 };
 
 exports.login = login;
