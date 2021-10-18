@@ -100,7 +100,7 @@ const updateCenter = async (req, res, next) => {
     (upcenter.governorate = governorate),
     (upcenter.city = city),
     (upcenter.center_capacity = center_capacity),
-    (upcenter.number_vaccine = number_vaccine || 0);
+    (upcenter.number_vaccine = number_vaccine);
 
   try {
     await upcenter.save();
