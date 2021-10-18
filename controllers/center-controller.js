@@ -137,7 +137,8 @@ const deposit = async (req, res, next) => {
   } 
   if(center.type_vaccine){
     const err = new Error("Another vaccine already exists!");
-    err.code = 500;
+    err.code = 400; //400 Bad Request;the server cannot or will not process the request 
+    //due to something that is perceived to be a client error (e.g., malformed request syntax)
     return next(err);
   }
   if (!vaccine) {
@@ -145,7 +146,11 @@ const deposit = async (req, res, next) => {
     err.code = 500;
     return next(err);
   }
-  
+  if(vaccine.stock<amount){
+    const err = new Error("this repartition can't be done!");
+    err.code = 400;
+    return next(err);
+  }
   vaccine.stock -= Number(amount);
   center.number_vaccine += Number(amount);
   center.type_vaccine= vaccine.type_vaccine
