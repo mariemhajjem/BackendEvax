@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 
-const centerSchema = new mongoose.Schema({
-  name: { type: String, required: true, unique:true }, 
+const pharmacySchema = new mongoose.Schema({
+  name: { type: String, required: true }, 
   governorate: { type: String, required: true }, 
-  city: { type: String, required: true },
-  center_capacity: {
+   city: { type: String, required: true },
+  pharmacy_capacity: {
     type: Number,
     required: true,
     default: null
@@ -20,4 +20,4 @@ const centerSchema = new mongoose.Schema({
 	}
 });
 
-module.exports = mongoose.model("Center", centerSchema);
+module.exports = mongoose.model("Pharmacy", pharmacySchema);

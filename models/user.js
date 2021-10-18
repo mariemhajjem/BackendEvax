@@ -6,12 +6,7 @@ const userSchema = new mongoose.Schema({
   firstname: { type: String, required: true },
   lastname: { type: String, required: true },
   email: { type: String, required: true },
-  birthday: { type: Date },
-  center: 
-	{
-		type: mongoose.Schema.Types.ObjectId,
-	 	ref: "Center"
-	},
+  birthday: { type: Date }, 
   creation_date: {
 		type: Date, 
 		default: Date.now

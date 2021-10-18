@@ -6,6 +6,7 @@ const DB = require("./config/DB");
 const authRoutes = require("./routes/auth-routes");
 const userRoutes = require("./routes/users-routes");
 const centerRoutes = require("./routes/centers-routes");
+const pharmacyRoutes = require("./routes/pharmacies-routes");
 const appointRoutes = require("./routes/appoint-routes");
 const vaccinesRoutes = require("./routes/vaccines-routes");
 const PORT = 5000;
@@ -18,6 +19,7 @@ app.use(cors());
 app.use("/api/auth", authRoutes);
 
 app.use("/api/centers", centerRoutes);
+app.use("/api/pharmacies", pharmacyRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/appoint", appointRoutes);
 app.use("/api/vaccines", vaccinesRoutes);
