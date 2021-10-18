@@ -1,4 +1,4 @@
-const mongoose = require("mongoose"); 
+const mongoose = require("mongoose");
 
 const Vaccine = require("../models/vaccine");
 
@@ -15,13 +15,9 @@ const getVaccines = async (req, res, next) => {
     vaccines: vaccines.map((vaccine) => vaccine.toObject({ getters: true })),
   });
 };
- 
 
 const addVaccine = async (req, res, next) => {
-  const {
-    vaccine_type,
-    stock, 
-  } = req.body;
+  const { vaccine_type, stock } = req.body;
 
   let existingVaccine;
   try {
@@ -40,15 +36,11 @@ const addVaccine = async (req, res, next) => {
 
   const createdVaccine = new Vaccine({
     vaccine_type,
-    stock
+    stock,
   });
 
   try {
-     
-    await createdVaccine.save({}, async (err, vacc) => {
-      if (err) throw err;
-    });
-     
+    await createdVaccine.save();
   } catch (err) {
     const error = new Error("Creating vaccine failed. Please try again!");
     error.code = 500;
@@ -59,9 +51,7 @@ const addVaccine = async (req, res, next) => {
 };
 
 const updateVaccine = async (req, res, next) => {
-  const { 
-    stock, 
-  } = req.body;
+  const { stock } = req.body;
   const idVacc = req.params.id;
 
   let updatedVaccine;
@@ -73,13 +63,12 @@ const updateVaccine = async (req, res, next) => {
     return next(err);
   }
 
-  updatedVaccine.stock = stock; 
+  updatedVaccine.stock = stock;
 
-  try { 
+  try {
     await updatedVaccine.save({}, async (err, vacc) => {
       if (err) throw err;
-       
-    }); 
+    });
   } catch (err) {
     const error = new Error("Updating vaccine failed. Please try again!");
     error.code = 500;
@@ -109,11 +98,11 @@ const deleteVaccine = async (req, res, next) => {
     return next(err);
   }
 
-  try { 
-    await vaccine.remove({ }, (err, vacc) => {
+  try {
+    await vaccine.remove({}, (err, vacc) => {
       if (err) console.log(err);
       else console.log("deleted");
-    }); 
+    });
   } catch (err) {
     const error = new Error("Deleting vaccine failed. Please try again!");
     error.code = 500;
@@ -123,7 +112,31 @@ const deleteVaccine = async (req, res, next) => {
   res.status(200).json({ vaccine: vaccine.toObject({ getters: true }) });
 };
 
+const getVaccineById = async (req, res, next) => {
+  const idVacc = req.params.id;
+  console.log(idVacc);
+  let vaccine;
+  try {
+    vaccine = await Vaccine.findById(idVacc);
+  } catch (error) {
+    const err = new Error(
+      "Something went wrong. could not find vaccine with this name!"
+    );
+    err.code = 500;
+    return next(err);
+  }
+
+  if (!vaccine) {
+    const err = new Error("No vaccine found with the provided vaccine name!");
+    err.code = 404;
+    return next(err);
+  }
+
+  res.json({ vaccine: vaccine.toObject({ getters: true }) });
+};
+
 exports.getVaccines = getVaccines;
-exports.addVaccine = addVaccine; 
+exports.addVaccine = addVaccine;
 exports.updateVaccine = updateVaccine;
 exports.deleteVaccine = deleteVaccine;
+exports.getVaccineById = getVaccineById;
