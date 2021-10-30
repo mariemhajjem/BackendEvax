@@ -4,7 +4,7 @@ const Vaccine = require("../models/vaccine");
 const getCenters = async (req, res, next) => {
   let centers;
   try {
-    centers = await Center.find();
+    centers = await Center.find().populate('type_vaccine');
   } catch (error) {
     const err = new Error("Fetching centers failed. please try again!");
     err.code = 500;
@@ -155,17 +155,15 @@ const deposit = async (req, res, next) => {
   }
   vaccine.stock -= Number(amount);
   center.number_vaccine += Number(amount);
-  center = { ...center._doc, type_vaccine: vaccine.vaccine_type };
-  try {
-    console.log(center);
+  center.type_vaccine= vaccine._id;
+  try { 
     await center.save();
   } catch (err) {
     const error = new Error("Deposit failed. Please try again!");
     error.code = 500;
     return next(error);
   }
-  try {
-    console.log(vaccine);
+  try { 
     await vaccine.save();
   } catch (err) {
     const error = new Error("Deposit failed. Please try again!");
