@@ -115,13 +115,14 @@ const updateCenter = async (req, res, next) => {
 };
 
 const deposit = async (req, res, next) => {
-  const { amount,idVacc } = req.body;
+  const { amount, idVacc } = req.body;
   const name = req.params.name;
+  console.log(req.body);
   let vaccine;
   let center;
   try {
     center = await Center.findOne({ name: name });
-    vaccine = await Vaccine.findById(idVacc);
+    vaccine = await Vaccine.findOne({ vaccine_type: idVacc });
   } catch (error) {
     const err = new Error(
       "Somthing went wrong. could not make deposit's operation!"
@@ -129,32 +130,34 @@ const deposit = async (req, res, next) => {
     err.code = 500;
     return next(err);
   }
-
   if (!center) {
     const err = new Error("No center found with the provided Center name!");
     err.code = 500;
     return next(err);
-  } 
-  if(center.type_vaccine){
+  }
+
+  if (center.type_vaccine) {
     const err = new Error("Another vaccine already exists!");
-    err.code = 400; //400 Bad Request;the server cannot or will not process the request 
+    err.code = 400; //400 Bad Request;the server cannot or will not process the request
     //due to something that is perceived to be a client error (e.g., malformed request syntax)
     return next(err);
   }
+
   if (!vaccine) {
     const err = new Error("No vaccine found with the provided id!");
     err.code = 500;
     return next(err);
   }
-  if(vaccine.stock<amount){
+  if (vaccine.stock < amount) {
     const err = new Error("this repartition can't be done!");
     err.code = 400;
     return next(err);
   }
   vaccine.stock -= Number(amount);
   center.number_vaccine += Number(amount);
-  center.type_vaccine= vaccine.type_vaccine
+  center = { ...center._doc, type_vaccine: vaccine.vaccine_type };
   try {
+    console.log(center);
     await center.save();
   } catch (err) {
     const error = new Error("Deposit failed. Please try again!");
@@ -162,6 +165,7 @@ const deposit = async (req, res, next) => {
     return next(error);
   }
   try {
+    console.log(vaccine);
     await vaccine.save();
   } catch (err) {
     const error = new Error("Deposit failed. Please try again!");
