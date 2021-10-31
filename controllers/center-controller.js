@@ -1,9 +1,10 @@
 const Center = require("../models/center");
+const Vaccine = require("../models/vaccine");
 
 const getCenters = async (req, res, next) => {
   let centers;
   try {
-    centers = await Center.find();
+    centers = await Center.find().populate('type_vaccine');
   } catch (error) {
     const err = new Error("Fetching centers failed. please try again!");
     err.code = 500;
@@ -114,12 +115,14 @@ const updateCenter = async (req, res, next) => {
 };
 
 const deposit = async (req, res, next) => {
-  const { amount } = req.body;
+  const { amount, idVacc } = req.body;
   const name = req.params.name;
-
+  console.log(req.body);
+  let vaccine;
   let center;
   try {
     center = await Center.findOne({ name: name });
+    vaccine = await Vaccine.findOne({ vaccine_type: idVacc });
   } catch (error) {
     const err = new Error(
       "Somthing went wrong. could not make deposit's operation!"
@@ -127,23 +130,46 @@ const deposit = async (req, res, next) => {
     err.code = 500;
     return next(err);
   }
-
   if (!center) {
-    const err = new Error("No center found with the provided Center Number!");
+    const err = new Error("No center found with the provided Center name!");
     err.code = 500;
     return next(err);
   }
 
-  center.number_vaccine += Number(amount);
+  if (center.type_vaccine) {
+    const err = new Error("Another vaccine already exists!");
+    err.code = 400; //400 Bad Request;the server cannot or will not process the request
+    //due to something that is perceived to be a client error (e.g., malformed request syntax)
+    return next(err);
+  }
 
-  try {
+  if (!vaccine) {
+    const err = new Error("No vaccine found with the provided id!");
+    err.code = 500;
+    return next(err);
+  }
+  if (vaccine.stock < amount) {
+    const err = new Error("this repartition can't be done!");
+    err.code = 400;
+    return next(err);
+  }
+  vaccine.stock -= Number(amount);
+  center.number_vaccine += Number(amount);
+  center.type_vaccine= vaccine._id;
+  try { 
     await center.save();
   } catch (err) {
     const error = new Error("Deposit failed. Please try again!");
     error.code = 500;
     return next(error);
   }
-
+  try { 
+    await vaccine.save();
+  } catch (err) {
+    const error = new Error("Deposit failed. Please try again!");
+    error.code = 500;
+    return next(error);
+  }
   res.status(200).json({ center: center.toObject({ getters: true }) });
 };
 

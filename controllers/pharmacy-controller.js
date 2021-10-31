@@ -1,4 +1,4 @@
-const Pharmacy = require("../models/pharmacy"); 
+const Pharmacy = require("../models/pharmacy");
 const { request } = require("../routes/vaccines-routes");
 
 const getPharmacies = async (req, res, next) => {
@@ -11,7 +11,9 @@ const getPharmacies = async (req, res, next) => {
     return next(err);
   }
   res.json({
-    pharmacies: pharmacies.map((pharmacy) => pharmacy.toObject({ getters: true })),
+    pharmacies: pharmacies.map((pharmacy) =>
+      pharmacy.toObject({ getters: true })
+    ),
   });
 };
 const getPharmacyById = async (req, res, next) => {
@@ -52,29 +54,31 @@ const getPharmacyByName = async (req, res, next) => {
   }
 
   if (!pharmacy) {
-    const err = new Error("No pharmacy found with the provided Pharmacy Number!");
+    const err = new Error(
+      "No pharmacy found with the provided Pharmacy Number!"
+    );
     err.code = 404;
     return next(err);
   }
 
   res.json({ pharmacy: pharmacy.toObject({ getters: true }) });
 };
- 
+
 const addPharmacy = async (req, res, next) => {
-  const { name,governorate, city,pharmacy_capacity,number_vaccine} = req.body;
+  const { name, governorate, city, pharmacy_capacity, number_vaccine } =
+    req.body;
   const createdPharmacy = new Pharmacy({
-    name, 
-    governorate, 
+    name,
+    governorate,
     city,
     pharmacy_capacity,
-   number_vaccine
+    number_vaccine,
   });
 
   try {
     await createdPharmacy.save({}, (err, pharmacy) => {
       if (err) throw err;
-    }); 
-   
+    });
   } catch (errs) {
     const error = new Error("Creating pharmacy failed. Please try again!");
     error.code = 500;
@@ -121,7 +125,7 @@ const deposit = async (req, res, next) => {
 };
 
 const withdraw = async (req, res, next) => {
-  const { amount} = req.body;
+  const { amount } = req.body;
   const name = req.params.name;
 
   let pharmacy;
@@ -143,14 +147,14 @@ const withdraw = async (req, res, next) => {
 
   if (pharmacy.number_vaccine > amount) {
     pharmacy.number_vaccine -= Number(amount);
- 
+
     try {
       await pharmacy.save();
     } catch (err) {
       const error = new Error("Operation failed. Please try again!");
       error.code = 500;
       return next(error);
-    } 
+    }
 
     res.status(200).json({ pharmacy: pharmacy.toObject({ getters: true }) });
   } else {
@@ -161,7 +165,7 @@ const withdraw = async (req, res, next) => {
 };
 
 const deletePharmacy = async (req, res, next) => {
-  const pharmacyId = req.params.idpharmacy; 
+  const pharmacyId = req.params.idpharmacy;
   let pharmacy;
   try {
     pharmacy = await Pharmacy.findById(pharmacyId);
@@ -177,11 +181,11 @@ const deletePharmacy = async (req, res, next) => {
     return next(err);
   }
 
-  try { 
-    await pharmacy.remove({ }, (err, clt) => {
+  try {
+    await pharmacy.remove({}, (err, clt) => {
       if (err) console.log(err);
       else console.log("deleted");
-    }); 
+    });
   } catch (err) {
     const error = new Error("Deleting pharmacy failed. Please try again!");
     error.code = 500;
@@ -191,15 +195,13 @@ const deletePharmacy = async (req, res, next) => {
   res.status(200).json({ pharmacy: pharmacy.toObject({ getters: true }) });
 };
 
-
 const deleteByNamePharmacy = async (req, res, next) => {
   const name = req.params.name;
   console.log(name);
   let pharmacy;
   try {
-    pharmacy = await Pharmacy.findOne({ name:name });
+    pharmacy = await Pharmacy.findOne({ name: name });
   } catch (error) {
-
     const err = new Error("Somthing went wrong. could not delete pharmacy!");
     err.code = 500;
     return next(err);
@@ -224,7 +226,6 @@ const deleteByNamePharmacy = async (req, res, next) => {
 
   res.status(200).json({ pharmacy: pharmacy.toObject({ getters: true }) });
 };
-
 
 const updatePharmacy = async (req, res, next) => {
   const { id, name, governorate, city, pharmacy_capacity, number_vaccine } =
@@ -257,16 +258,17 @@ const updatePharmacy = async (req, res, next) => {
     return next(error);
   }
 
-  res.status(200).json({ updatedPharmacy: upPharmacy.toObject({ getters: true }) });
+  res
+    .status(200)
+    .json({ updatedPharmacy: upPharmacy.toObject({ getters: true }) });
 };
- 
-exports.withdraw        = withdraw;
-exports.deposit         = deposit;
-exports.getPharmacyByName = getPharmacyByName;
-exports.addPharmacy       = addPharmacy;
-exports.updatePharmacy       = updatePharmacy;
-exports.getPharmacyById   = getPharmacyById;
-exports.deletePharmacy    = deletePharmacy; 
-exports.getPharmacies      = getPharmacies;
-exports.deleteByNamePharmacy = deleteByNamePharmacy;
 
+exports.withdraw = withdraw;
+exports.deposit = deposit;
+exports.getPharmacyByName = getPharmacyByName;
+exports.addPharmacy = addPharmacy;
+exports.updatePharmacy = updatePharmacy;
+exports.getPharmacyById = getPharmacyById;
+exports.deletePharmacy = deletePharmacy;
+exports.getPharmacies = getPharmacies;
+exports.deleteByNamePharmacy = deleteByNamePharmacy;

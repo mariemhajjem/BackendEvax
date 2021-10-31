@@ -10,7 +10,7 @@ router.delete("/delete/:name", CenterController.deleteCenter);
 router.get("/name/:name", CenterController.getCenterByName);
 router.put("/update", CenterController.updateCenter);
 
-router.post("/:numcenter/deposit", CenterController.deposit);
+router.post("/deposit/:name", CenterController.deposit);
 router.post("/:numcenter/withdraw", CenterController.withdraw); 
 
 module.exports = router;
