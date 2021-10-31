@@ -95,7 +95,7 @@ const login = async (req, res, next) => {
   res.json({ userId: user.id, cin: user.cin, token: token });
 };
 
-const register = async (req, res, next) => {
+const registerCenter = async (req, res, next) => {
   const {
     cin, 
     password,
@@ -131,9 +131,8 @@ const register = async (req, res, next) => {
     password: hashPass,
     firstname,
     lastname,
-    email,   
-    center
-  });
+    email
+    });
    
   try {
     await createUser.save();
@@ -144,8 +143,8 @@ const register = async (req, res, next) => {
   }
   req.body.userId = createUser.id
   req.body.center = center
-  /* req.body.appointmentDate = appointmentDate
-  req.body.appointmentTime = appointmentTime */
+   req.body.appointmentDate = appointmentDate
+  req.body.appointmentTime = appointmentTime 
   addAppoint(req,res,next)
   let token;
   try {
@@ -175,5 +174,96 @@ const register = async (req, res, next) => {
     .json({ userId: createUser.id, cin: createUser.cin, token: token });
 };
 
+
+const registerPharmacy = async (req, res, next) => {
+  const {
+    cin, 
+    password,
+    firstname,
+    lastname, 
+    email, 
+    pharmacy ,
+    appointmentDate,
+    appointmentTime} = req.body; 
+  let addedUser;
+  try {
+    addedUser = await User.findOne({ cin: cin });
+  } catch (error) {
+    const err = new Error("Somthing went wrong. could not add user!");
+    err.code = 500;
+    return next(err);
+  }
+  if (addedUser) {
+    const err = new Error("User already exists, please login instead.");
+    err.code = 400;
+    return next(err);
+  }
+
+  let hashPass;
+  try {
+    hashPass = await bcrypt.hash(password, 12);
+  } catch (error) {
+    const err = new Error("Could not create User. please try again.");
+    err.code = 500;
+    return next(err);
+  }
+
+  const createUser = new User({
+    cin,
+    password: hashPass,
+    firstname,
+    lastname,
+    email
+  });
+   
+  try {
+    await createUser.save();
+  } catch (errs) {
+    const error = new Error("Creating user failed. Please try again!");
+    error.code = 500;
+    return next(error);
+  }
+  req.body.userId = createUser.id
+  req.body.pharmacy = pharmacy
+req.body.appointmentDate = appointmentDate
+req.body.appointmentTime = appointmentTime 
+  addAppoint(req,res,next)
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: createUser.id, cin: createUser.cin },
+      "pharmacy_code",
+      { expiresIn: "1d" }
+    );
+  
+    code = generateCode();
+    transporter.sendMail({
+      to: req.body.email,
+      from: 'mariemhajjem10@gmail.com',
+      subject: 'Vaccination code',
+      html: `
+        <p>Hi ${firstname} ${lastname} !</p>
+        <p>This is your vaccination code : ${code} </p>
+      `
+    });
+  } catch (err) {
+    const error = new Error("Creating user failed. Please try again!");
+    error.code = 500;
+    return next(error);
+  }
+
+  res
+    .status(201)
+    .json({ userId: createUser.id, cin: createUser.cin, token: token });
+};
+
+
+
+
+
+
+
 exports.login = login;
-exports.register = register;
+exports.registerCenter = registerCenter;
+exports.registerPharmacy = registerPharmacy;
+
