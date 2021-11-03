@@ -4,7 +4,6 @@ const router = express.Router();
 const userController = require("../controllers/users-controller");
 const verifyToken = require("../controllers/verify-token");
 
-
 router.get("/", userController.getUsers);
 router.get("/:cin", userController.getUserByCin);
 

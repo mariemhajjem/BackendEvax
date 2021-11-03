@@ -1,4 +1,4 @@
-const mongoose = require("mongoose"); 
+const mongoose = require("mongoose");
 
 const User = require("../models/user");
 
@@ -38,14 +38,7 @@ const getUserByCin = async (req, res, next) => {
 };
 
 const addUser = async (req, res, next) => {
-  const {
-    firstname,
-    lastname,
-    cin,
-    email,
-    birthday,
-    address, 
-  } = req.body;
+  const { firstname, lastname, cin, email, birthday, address } = req.body;
 
   let existingUser;
   try {
@@ -68,15 +61,14 @@ const addUser = async (req, res, next) => {
     cin,
     email,
     birthday,
-    address
+    governorate,
+    city,
   });
 
   try {
-     
     await createdUser.save({}, async (err, clt) => {
       if (err) throw err;
     });
-     
   } catch (err) {
     const error = new Error("Creating user failed. Please try again!");
     error.code = 500;
@@ -87,14 +79,7 @@ const addUser = async (req, res, next) => {
 };
 
 const updateUser = async (req, res, next) => {
-  const {
-    firstname,
-    lastname,
-    cin,
-    email,
-    address,
-    birthday, 
-  } = req.body;
+  const { firstname, lastname, cin, email, address, birthday } = req.body;
   const userCin = req.params.cin;
 
   let updatedUser;
@@ -113,11 +98,10 @@ const updateUser = async (req, res, next) => {
   updatedUser.birthday = birthday;
   updatedUser.address = address;
 
-  try { 
+  try {
     await updatedUser.save({}, async (err, clt) => {
       if (err) throw err;
-       
-    }); 
+    });
   } catch (err) {
     const error = new Error("Updating user failed. Please try again!");
     error.code = 500;
@@ -147,11 +131,11 @@ const deleteUser = async (req, res, next) => {
     return next(err);
   }
 
-  try { 
-    await user.remove({ }, (err, clt) => {
+  try {
+    await user.remove({}, (err, clt) => {
       if (err) console.log(err);
       else console.log("deleted");
-    }); 
+    });
   } catch (err) {
     const error = new Error("Deleting user failed. Please try again!");
     error.code = 500;
