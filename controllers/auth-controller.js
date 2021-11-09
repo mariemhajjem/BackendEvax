@@ -5,8 +5,8 @@ const nodemailer = require("nodemailer");
 const User = require("../models/user");
 const Center = require("../models/center");
 //const creds = require('../config/contact');
-const creds = require('../config/creds');
-const {addAppoint} = require('./appoint-controller')
+const creds = require("../config/creds");
+const { addAppoint } = require("./appoint-controller");
 var transport = {
   service: "gmail",
   secure: false,
@@ -41,11 +41,8 @@ const generateCode = () => {
 };
 
 const login = async (req, res, next) => {
-  const {
-    cin, 
-    password, 
-  } = req.body;
-  
+  const { cin, password } = req.body;
+
   let user;
   try {
     user = await User.findOne({ cin: cin });
@@ -80,9 +77,11 @@ const login = async (req, res, next) => {
 
   let token;
   try {
-    token = jwt.sign({ userId: user.id, cin: user.cin, role:user.role }, 
-      "center_code", 
-      {expiresIn: "1d"});
+    token = jwt.sign(
+      { userId: user.id, cin: user.cin, role: user.role },
+      "center_code",
+      { expiresIn: "1d" }
+    );
   } catch (err) {
     const error = new Error("logging user failed. Please try again!");
     error.code = 500;
@@ -94,12 +93,16 @@ const login = async (req, res, next) => {
 
 const registerCenter = async (req, res, next) => {
   const {
-    cin, 
+    cin,
     password,
     firstname,
-    lastname, 
-    email, 
-    center } = req.body; 
+    lastname,
+    email,
+    gouvernorate,
+    city,
+    birthday,
+    center,
+  } = req.body;
 
   let addedUser;
   try {
@@ -130,9 +133,12 @@ const registerCenter = async (req, res, next) => {
     firstname,
     lastname,
     email,
-    code
+    gouvernorate,
+    city,
+    birthday,
+    code,
   });
-  
+
   try {
     await createUser.save();
   } catch (errs) {
@@ -142,9 +148,10 @@ const registerCenter = async (req, res, next) => {
   }
 
   req.body.userId = createUser.id;
+
   req.body.center = center;
-   req.body.appointmentDate = appointmentDate
-  req.body.appointmentTime = appointmentTime 
+  req.body.appointmentDate = appointmentDate;
+  req.body.appointmentTime = appointmentTime;
   addAppoint(req, res, next);
   let token;
   try {
@@ -153,7 +160,7 @@ const registerCenter = async (req, res, next) => {
       "center_code",
       { expiresIn: "1d" }
     );
-    
+
     transporter.sendMail({
       to: req.body.email,
       from: "mariemhajjem10@gmail.com",
@@ -169,22 +176,20 @@ const registerCenter = async (req, res, next) => {
     return next(error);
   }
 
-  res
-    .status(201)
-    .json({ user: createUser, cin: createUser.cin, token: token });
+  res.status(201).json({ user: createUser, cin: createUser.cin, token: token });
 };
-
 
 const registerPharmacy = async (req, res, next) => {
   const {
-    cin, 
+    cin,
     password,
     firstname,
-    lastname, 
-    email, 
-    pharmacy ,
+    lastname,
+    email,
+    pharmacy,
     appointmentDate,
-    appointmentTime} = req.body; 
+    appointmentTime,
+  } = req.body;
   let addedUser;
   try {
     addedUser = await User.findOne({ cin: cin });
@@ -213,9 +218,9 @@ const registerPharmacy = async (req, res, next) => {
     password: hashPass,
     firstname,
     lastname,
-    email
+    email,
   });
-   
+
   try {
     await createUser.save();
   } catch (errs) {
@@ -223,11 +228,11 @@ const registerPharmacy = async (req, res, next) => {
     error.code = 500;
     return next(error);
   }
-  req.body.userId = createUser.id
-  req.body.pharmacy = pharmacy
-req.body.appointmentDate = appointmentDate
-req.body.appointmentTime = appointmentTime 
-  addAppoint(req,res,next)
+  req.body.userId = createUser.id;
+  req.body.pharmacy = pharmacy;
+  req.body.appointmentDate = appointmentDate;
+  req.body.appointmentTime = appointmentTime;
+  addAppoint(req, res, next);
   let token;
   try {
     token = jwt.sign(
@@ -235,16 +240,16 @@ req.body.appointmentTime = appointmentTime
       "pharmacy_code",
       { expiresIn: "1d" }
     );
-  
+
     code = generateCode();
     transporter.sendMail({
       to: req.body.email,
-      from: 'mariemhajjem10@gmail.com',
-      subject: 'Vaccination code',
+      from: "mariemhajjem10@gmail.com",
+      subject: "Vaccination code",
       html: `
         <p>Hi ${firstname} ${lastname} !</p>
         <p>This is your vaccination code : ${code} </p>
-      `
+      `,
     });
   } catch (err) {
     const error = new Error("Creating user failed. Please try again!");
@@ -257,13 +262,6 @@ req.body.appointmentTime = appointmentTime
     .json({ userId: createUser.id, cin: createUser.cin, token: token });
 };
 
-
-
-
-
-
-
 exports.login = login;
 exports.registerCenter = registerCenter;
 exports.registerPharmacy = registerPharmacy;
-
