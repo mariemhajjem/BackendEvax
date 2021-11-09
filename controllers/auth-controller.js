@@ -92,21 +92,12 @@ const login = async (req, res, next) => {
 };
 
 const registerCenter = async (req, res, next) => {
-  const {
-    cin,
-    password,
-    firstname,
-    lastname,
-    email,
-    gouvernorate,
-    city,
-    birthday,
-    center,
-  } = req.body;
+  const { cin, firstname, lastname, email, governorate, city, birthday } =
+    req.body;
 
   let addedUser;
   try {
-    addedUser = await User.findOne({ cin: cin });
+    addedUser = await User.findOne({ cin: cin, email: email });
   } catch (error) {
     const err = new Error("Somthing went wrong. could not add user!");
     err.code = 500;
@@ -118,27 +109,18 @@ const registerCenter = async (req, res, next) => {
     return next(err);
   }
 
-  let hashPass;
-  try {
-    hashPass = await bcrypt.hash(password, 12);
-  } catch (error) {
-    const err = new Error("Could not create User. please try again.");
-    err.code = 500;
-    return next(err);
-  }
   const code = generateCode();
   const createUser = new User({
     cin,
-    password: hashPass,
     firstname,
     lastname,
     email,
-    gouvernorate,
+    governorate,
     city,
     birthday,
     code,
   });
-
+  console.log(req.body);
   try {
     await createUser.save();
   } catch (errs) {
@@ -149,9 +131,6 @@ const registerCenter = async (req, res, next) => {
 
   req.body.userId = createUser.id;
 
-  req.body.center = center;
-  req.body.appointmentDate = appointmentDate;
-  req.body.appointmentTime = appointmentTime;
   addAppoint(req, res, next);
   let token;
   try {
@@ -182,7 +161,6 @@ const registerCenter = async (req, res, next) => {
 const registerPharmacy = async (req, res, next) => {
   const {
     cin,
-    password,
     firstname,
     lastname,
     email,
@@ -198,24 +176,14 @@ const registerPharmacy = async (req, res, next) => {
     err.code = 500;
     return next(err);
   }
-  if (addedUser) {
-    const err = new Error("User already exists, please login instead.");
+  if (!addedUser) {
+    const err = new Error("User doesn't exist, register first");
     err.code = 400;
-    return next(err);
-  }
-
-  let hashPass;
-  try {
-    hashPass = await bcrypt.hash(password, 12);
-  } catch (error) {
-    const err = new Error("Could not create User. please try again.");
-    err.code = 500;
     return next(err);
   }
 
   const createUser = new User({
     cin,
-    password: hashPass,
     firstname,
     lastname,
     email,
