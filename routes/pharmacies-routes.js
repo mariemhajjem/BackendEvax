@@ -9,6 +9,7 @@ router.get("/:pharmacyId", PharmacyController.getPharmacyById);
 //router.delete("/delete/:idpharmacy", PharmacyController.deletePharmacy);
 router.delete("/delete/:name", PharmacyController.deleteByNamePharmacy);
 router.put("/update", PharmacyController.updatePharmacy);
+router.put("/addDispo", PharmacyController.addDisponibilities);
 router.get("/name/:name", PharmacyController.getPharmacyByName);
 
 // router.post("/:numpharmacy/deposit", PharmacyController.deposit);
