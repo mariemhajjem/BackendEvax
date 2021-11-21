@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
       date: { type: Date, default: Date.now },
     },
   ],
+  centers: {
+    type: String,
+    center: { type: mongoose.Schema.Types.ObjectId, ref: "Center" },
+
+  },
 });
 
 module.exports = mongoose.model("Users", userSchema);

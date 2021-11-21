@@ -1,6 +1,27 @@
 const mongoose = require("mongoose");
 
 const User = require("../models/user");
+const { roles } = require('./roles');
+
+
+
+const grantAccess = (action, resource) => {
+  console.log(action,resource)
+  return async (req, res, next) => {
+   try {
+    const permission = roles.can(req.user.role)[action](resource);
+    console.log('permission',permission);
+    if (!permission.granted) {
+     return res.status(401).json({
+      error: "You don't have enough permission to perform this action"
+     });
+    }
+    next()
+   } catch (error) {
+    console.log(error)
+   }
+  }
+ }
 
 const getUsers = async (req, res, next) => {
   let users;
@@ -38,7 +59,7 @@ const getUserByCin = async (req, res, next) => {
 };
 
 const addUser = async (req, res, next) => {
-  const { firstname, lastname, cin, email, birthday, address } = req.body;
+  const { firstname, lastname, cin, email, birthday, address, role } = req.body;
 
   let existingUser;
   try {
@@ -63,6 +84,7 @@ const addUser = async (req, res, next) => {
     birthday,
     governorate,
     city,
+    role : role || "enrolled"
   });
 
   try {
@@ -150,3 +172,4 @@ exports.addUser = addUser;
 exports.getUserByCin = getUserByCin;
 exports.updateUser = updateUser;
 exports.deleteUser = deleteUser;
+exports.grantAccess = grantAccess;
