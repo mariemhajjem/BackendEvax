@@ -264,8 +264,8 @@ const updatePharmacy = async (req, res, next) => {
 };
 
 const addDisponibilities = async (req, res, next) => {
-  const { id, startDate,endTime, interval} = req.body;
-   
+  const { id, start, end, interval } = req.body;
+
   let upPharmacy;
   try {
     upPharmacy = await Pharmacy.findById(id);
@@ -278,12 +278,12 @@ const addDisponibilities = async (req, res, next) => {
     const err = new Error("No pharmacy found with the provided id!");
     err.code = 404;
     return next(err);
-  } 
-  const dates = splitTime(startDate,endTime, interval)
-  dates.map( date => {
-    upPharmacy.disponibilities.push({date})
-  }) 
-  
+  }
+  const dates = splitTime(start, end, interval);
+  dates.map((date) => {
+    upPharmacy.disponibilities.push({ date });
+  });
+
   try {
     await upPharmacy.save();
   } catch (err) {
@@ -292,9 +292,7 @@ const addDisponibilities = async (req, res, next) => {
     return next(error);
   }
 
-  res
-    .status(200)
-    .json({ upPharmacy });
+  res.status(200).json({ upPharmacy });
 };
 
 exports.addDisponibilities = addDisponibilities;

@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const cors = require("cors");  
+const cors = require("cors");
 const nodeCron = require("node-cron");
 
 const DB = require("./config/DB");
@@ -10,9 +10,8 @@ const centerRoutes = require("./routes/centers-routes");
 const pharmacyRoutes = require("./routes/pharmacies-routes");
 const appointRoutes = require("./routes/appoint-routes");
 const vaccinesRoutes = require("./routes/vaccines-routes");
-const {SendEmails} = require("./controllers/appoint-jobs");
+const { SendEmails } = require("./controllers/appoint-jobs");
 const PORT = 5000;
-
 
 app.use(express.json());
 
@@ -37,7 +36,7 @@ app.use((error, req, res, next) => {
   res.json({ message: error.message || "An unknow error occured!" });
 });
 
-DB(); 
-const job = nodeCron.schedule("*/1 * * * *", SendEmails); //every 2minutes
+DB();
+// const job = nodeCron.schedule("*/1 * * * *", SendEmails); //every 2minutes
 //const job = nodeCron.schedule("30 7 9 * * 6", SendEmails);//day 0 every sunday from 0-7
 app.listen(PORT);
