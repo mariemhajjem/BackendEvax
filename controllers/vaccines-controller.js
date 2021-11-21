@@ -81,11 +81,11 @@ const updateVaccine = async (req, res, next) => {
 };
 
 const deleteVaccine = async (req, res, next) => {
-  const idVacc = req.params.id;
+  const vaccine_type = req.params.vaccine_type;
 
   let vaccine;
   try {
-    vaccine = await Vaccine.findById(idVacc);
+    vaccine = await Vaccine.findOne({vaccine_type:vaccine_type});
   } catch (error) {
     const err = new Error("Somthing went wrong. could not delete vaccine!");
     err.code = 500;

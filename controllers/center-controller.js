@@ -117,7 +117,7 @@ const updateCenter = async (req, res, next) => {
 const deposit = async (req, res, next) => {
   const { amount, idVacc } = req.body;
   const name = req.params.name;
-  console.log(req.body);
+  
   let vaccine;
   let center;
   try {
@@ -156,6 +156,7 @@ const deposit = async (req, res, next) => {
   vaccine.stock -= Number(amount);
   center.number_vaccine += Number(amount);
   center.type_vaccine= vaccine._id;
+  console.log(center);
   try { 
     await center.save();
   } catch (err) {
