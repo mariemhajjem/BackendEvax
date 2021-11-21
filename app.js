@@ -26,7 +26,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/appoint", appointRoutes);
 app.use("/api/vaccines", vaccinesRoutes);
 
-app.use("/api/volunteer", volunteerRoutes);
+
 
 app.use((req, res, next) => {
   const error = new Error("could not found this route.");
