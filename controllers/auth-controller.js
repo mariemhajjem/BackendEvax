@@ -1,35 +1,10 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
 
 const User = require("../models/user");
 const Center = require("../models/center");
-//const creds = require('../config/contact');
-const creds = require("../config/creds");
 const { addAppoint } = require("./appoint-controller");
-var transport = {
-  service: "gmail",
-  secure: false,
-  port: 25,
-  auth: {
-    user: creds.USER,
-    pass: creds.PASS,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-};
-
-var transporter = nodemailer.createTransport(transport);
-
-transporter.verify((error, success) => {
-  if (error) {
-    console.log(error);
-  } else {
-    console.log("Server is ready to take messages");
-  }
-});
-
+const transporter = require("./email");
 const generateCode = () => {
   const characters = "01234567890";
 
@@ -120,7 +95,7 @@ const registerCenter = async (req, res, next) => {
     birthday,
     code,
   });
-  console.log(req.body);
+  console.log(createUser);
   try {
     await createUser.save();
   } catch (errs) {
