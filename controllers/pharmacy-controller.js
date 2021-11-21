@@ -1,5 +1,5 @@
 const Pharmacy = require("../models/pharmacy");
-const { request } = require("../routes/vaccines-routes");
+const { splitTime } = require("../lib/split-time");
 
 const getPharmacies = async (req, res, next) => {
   let pharmacies;
@@ -263,6 +263,41 @@ const updatePharmacy = async (req, res, next) => {
     .json({ updatedPharmacy: upPharmacy.toObject({ getters: true }) });
 };
 
+const addDisponibilities = async (req, res, next) => {
+  const { id, startDate,endTime, interval} = req.body;
+   
+  let upPharmacy;
+  try {
+    upPharmacy = await Pharmacy.findById(id);
+  } catch (error) {
+    const err = new Error("Somthing went wrong. could not update pharmacy!");
+    err.code = 500;
+    return next(err);
+  }
+  if (!upPharmacy) {
+    const err = new Error("No pharmacy found with the provided id!");
+    err.code = 404;
+    return next(err);
+  } 
+  const dates = splitTime(startDate,endTime, interval)
+  dates.map( date => {
+    upPharmacy.disponibilities.push({date})
+  }) 
+  
+  try {
+    await upPharmacy.save();
+  } catch (err) {
+    const error = new Error("Updating pharmacy failed. Please try again!");
+    error.code = 500;
+    return next(error);
+  }
+
+  res
+    .status(200)
+    .json({ upPharmacy });
+};
+
+exports.addDisponibilities = addDisponibilities;
 exports.withdraw = withdraw;
 exports.deposit = deposit;
 exports.getPharmacyByName = getPharmacyByName;
