@@ -1,6 +1,19 @@
 const User = require("../models/user");
 const Appoint = require("../models/appointment");
 
+const SearchOldPeopleAppoints = async (req, res, next) => {
+  let appoints;
+  try {
+    appoints = await Appoint.find({pharmacy: null, center: null })
+              .populate('center').populate('user') 
+              .sort({'user.birthday': -1});
+  } catch (error) {
+    const err = new Error("Fetching appoints failed. please try again!");
+    err.code = 500;
+    return next(err);
+  }
+  res.json(appoints) 
+};
 const addAppoint = async (req, res, next) => {
     const { appointmentDate, appointmentTime,center,pharmacy, userId} = req.body 
     const appoint = new Appoint({
@@ -10,15 +23,15 @@ const addAppoint = async (req, res, next) => {
         pharmacy,
         user : userId
     })
+    console.log(appoint)
     try {
         await appoint.save();
-      } catch (errs) {
+    } catch (errs) {
         const error = new Error("Creating appointement failed. Please try again!");
         error.code = 500;
         return next(error);
-      }
-      /* res.status(201)
-      .json({ appoint }); */ 
+    }
+    //res.status(201).json({ appoint });
 }
 
 const addAppointDate = async (req, res, next) => {
@@ -50,7 +63,7 @@ const updateAppoint = async (req, res, next) => {
   }
   
 } 
-
+exports.SearchOldPeopleAppoints = SearchOldPeopleAppoints
 exports.addAppoint = addAppoint
 exports.updateAppoint = updateAppoint
 exports.addAppointDate = addAppointDate

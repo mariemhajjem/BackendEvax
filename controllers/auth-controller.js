@@ -4,9 +4,10 @@ const nodemailer = require("nodemailer");
 
 const User = require("../models/user");
 const Center = require("../models/center");
-//const creds = require('../config/contact');
-const creds = require("../config/creds");
-const { addAppoint } = require("./appoint-controller");
+const { addAppoint } = require("./appoint-controller"); 
+const creds = require("../config/contact");
+// const creds = require("../../config/creds");
+
 var transport = {
   service: "gmail",
   secure: false,
@@ -21,15 +22,6 @@ var transport = {
 };
 
 var transporter = nodemailer.createTransport(transport);
-
-transporter.verify((error, success) => {
-  if (error) {
-    console.log(error);
-  } else {
-    console.log("Server is ready to take messages");
-  }
-});
-
 const generateCode = () => {
   const characters = "01234567890";
 
@@ -41,11 +33,11 @@ const generateCode = () => {
 };
 
 const login = async (req, res, next) => {
-  const { cin, password } = req.body;
+  const { cin, code } = req.body;
 
   let user;
   try {
-    user = await User.findOne({ cin: cin });
+    user = await User.findOne({ cin: cin,code:code });
   } catch (error) {
     const err = new Error("Somthing went wrong. could not login!");
     err.code = 500;
@@ -57,24 +49,7 @@ const login = async (req, res, next) => {
     err.code = 404;
     return next(err);
   }
-
-  let isValidPass = false;
-  try {
-    isValidPass = await bcrypt.compare(password, user.password);
-  } catch (error) {
-    const err = new Error(
-      "could not login user, please check your credentiels."
-    );
-    err.code = 500;
-    return next(err);
-  }
-
-  if (!isValidPass) {
-    const err = new Error("Invalid credentials provided, could not login.");
-    err.code = 401;
-    return next(err);
-  }
-
+  
   let token;
   try {
     token = jwt.sign(
@@ -120,7 +95,7 @@ const registerCenter = async (req, res, next) => {
     birthday,
     code,
   });
-  console.log(req.body);
+  console.log(createUser);
   try {
     await createUser.save();
   } catch (errs) {
@@ -139,7 +114,13 @@ const registerCenter = async (req, res, next) => {
       "center_code",
       { expiresIn: "1d" }
     );
-
+    transporter.verify((error, success) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Server is ready to take messages");
+      }
+    });
     transporter.sendMail({
       to: req.body.email,
       from: "mariemhajjem10@gmail.com",
@@ -149,6 +130,7 @@ const registerCenter = async (req, res, next) => {
         <p>This is your vaccination code : ${code} </p>
       `,
     });
+    transporter.close();
   } catch (err) {
     const error = new Error("Creating user failed. Please try again!");
     error.code = 500;
@@ -209,7 +191,14 @@ const registerPharmacy = async (req, res, next) => {
       { expiresIn: "1d" }
     );
 
-    code = generateCode();
+    const code = generateCode();
+    transporter.verify((error, success) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Server is ready to take messages");
+      }
+    });
     transporter.sendMail({
       to: req.body.email,
       from: "mariemhajjem10@gmail.com",
@@ -219,6 +208,7 @@ const registerPharmacy = async (req, res, next) => {
         <p>This is your vaccination code : ${code} </p>
       `,
     });
+    transporter.close()
   } catch (err) {
     const error = new Error("Creating user failed. Please try again!");
     error.code = 500;

@@ -17,7 +17,16 @@ const pharmacySchema = new mongoose.Schema({
 		type: Number,
 		required: true,
     default: null
-	}
+	},
+  disponibilities :[
+    {
+      date: {type:String},
+      appointments: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Appointment",
+      }]
+    }
+  ] 
 });
 
 module.exports = mongoose.model("Pharmacy", pharmacySchema);
