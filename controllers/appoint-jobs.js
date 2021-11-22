@@ -2,7 +2,30 @@ const moment = require('moment');
 
 const Appoint = require("../models/appointment");
 const Center = require("../models/center"); 
-const transporter = require("./email");
+//const transporter = require("./email");
+const creds = require("../config/contact");
+const nodemailer = require("nodemailer");
+
+var transport = {
+  service: "gmail",
+  secure: false,
+  port: 25,
+  auth: {
+    user: creds.USER,
+    pass: creds.PASS,
+  },
+  tls: {
+    rejectUnauthorized: false,
+  },
+};
+
+var transporter = nodemailer.createTransport(transport);
+
+const SendEmails = async () => { 
+  const data = await SearchOldPeopleAppoints();
+  console.log("data from SendEmails : ",data)
+  if(data) MapThroughAppoints(data);   
+};
 
 const SearchOldPeopleAppoints = async () => {
   let appoints;
@@ -17,6 +40,12 @@ const SearchOldPeopleAppoints = async () => {
   return appoints
 };
 
+const MapThroughAppoints = (appoints) => {
+  appoints.map(async (appoint) => { 
+    await modifyAppointAndSendEmail(appoint)
+    console.log("done...")
+  }) 
+};
 const modifyAppointAndSendEmail = async (appoint) => { 
   //change with findAll centers 
   //and verify dispo for each one and see if it finds a center or null!!
@@ -43,25 +72,27 @@ const modifyAppointAndSendEmail = async (appoint) => {
     
     //send email
     console.log('sending email rdv...')
+    transporter.verify((error, success) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Server is ready to take messages");
+      }
+    });
     transporter.sendMail({
       to: appoint.user.email,
       from: "mariemhajjem10@gmail.com",
       subject: "Vaccination code",
       html: `
         <p>Hi ${appoint.user.firstname} ${appoint.user.lastname} !</p>
-        <p>This is your vaccination code : ${code} </p>
+        <p>This is your vaccination code : ${appoint.user.code} </p>
         <p>This is your appointment date : ${date} in ${center.name}</p>
       `,
     });
+    transporter.close()
   }
 }
- 
-const MapThroughAppoints = (appoints) => {
-  appoints.map(async (appoint) => { 
-    await modifyAppointAndSendEmail(appoint)
-    console.log("done...")
-  }) 
-};
+
 
 const verifyDispo = async (center,date) => {
   const appoints = await Appoint.find({pharmacy: null,center:center._id ,appointmentDate: date})
@@ -69,10 +100,6 @@ const verifyDispo = async (center,date) => {
   return appoints.length < center.center_capacity * 8 * 2
 };
 
-const SendEmails = async () => { 
-    const data = await SearchOldPeopleAppoints();
-    console.log("data from SendEmails : ",data)
-    if(data) MapThroughAppoints(data);   
-};
+
 
 exports.SendEmails = SendEmails
