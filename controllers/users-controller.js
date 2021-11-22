@@ -9,7 +9,8 @@ const grantAccess = (action, resource) => {
   console.log(action,resource)
   return async (req, res, next) => {
    try {
-    const permission = roles.can(req.user.role)[action](resource);
+     //a modifier 
+    const permission = roles.can('admin')[action](resource);
     console.log('permission',permission);
     if (!permission.granted) {
      return res.status(401).json({
@@ -27,6 +28,7 @@ const getUsers = async (req, res, next) => {
   let users;
   try {
     users = await User.find();
+    console.log('******************************', )
   } catch (error) {
     const err = new Error("Fetching users failed. please try again!");
     err.code = 500;
@@ -59,7 +61,8 @@ const getUserByCin = async (req, res, next) => {
 };
 
 const addUser = async (req, res, next) => {
-  const { firstname, lastname, cin, email, birthday, address, role } = req.body;
+  console.log('**********************************s')
+  const { firstname, lastname, cin, email, birthday, governorate, role, center,city } = req.body;
 
   let existingUser;
   try {
@@ -74,7 +77,7 @@ const addUser = async (req, res, next) => {
     const err = new Error("User already exist, please check Users List.");
     err.code = 500;
     return next(err);
-  }
+  } 
 
   const createdUser = new User({
     firstname,
@@ -84,11 +87,14 @@ const addUser = async (req, res, next) => {
     birthday,
     governorate,
     city,
-    role : role || "enrolled"
+    role : role || "enrolled",
+    centers: center || 'NULL'
+
   });
 
   try {
     await createdUser.save({}, async (err, clt) => {
+      console.log("idin ahmed fi ")
       if (err) throw err;
     });
   } catch (err) {
@@ -101,12 +107,14 @@ const addUser = async (req, res, next) => {
 };
 
 const updateUser = async (req, res, next) => {
-  const { firstname, lastname, cin, email, address, birthday } = req.body;
+  console.log('***************************', req.body)
+  const { firstname, lastname, cin, email, governorate, birthday, role, center } = req.body;
   const userCin = req.params.cin;
+  console.log('***************************', firstname)
 
   let updatedUser;
   try {
-    updatedUser = await User.findOne({ cin: userCin });
+    updatedUser = await User.findOne({ _id: userCin });
   } catch (error) {
     const err = new Error("Somthing went wrong. could not update user!");
     err.code = 500;
@@ -118,7 +126,9 @@ const updateUser = async (req, res, next) => {
   updatedUser.cin = cin;
   updatedUser.email = email;
   updatedUser.birthday = birthday;
-  updatedUser.address = address;
+  updatedUser.governorate = governorate;
+  updatedUser.role = role;
+  updatedUser.center = center;
 
   try {
     await updatedUser.save({}, async (err, clt) => {
@@ -137,6 +147,7 @@ const updateUser = async (req, res, next) => {
 
 const deleteUser = async (req, res, next) => {
   const userId = req.params.id;
+  console.log('called*********************************')
 
   let user;
   try {

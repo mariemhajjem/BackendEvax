@@ -9,7 +9,6 @@ const centerRoutes = require("./routes/centers-routes");
 const pharmacyRoutes = require("./routes/pharmacies-routes");
 const appointRoutes = require("./routes/appoint-routes");
 const vaccinesRoutes = require("./routes/vaccines-routes");
-const volunteerRoutes = require("./routes/volunteer-routes");
 
 const PORT = 5000;
 

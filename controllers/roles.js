@@ -4,7 +4,7 @@ const ac = new AccessControl();
  
 exports.roles = (() => {
 ac.grant("admin")
-//.readAny('Users', ['*'])
+.readAny('Users', ['*'])
 .updateAny('Users', ['*'])
 .deleteAny('Users', ['*'])
 

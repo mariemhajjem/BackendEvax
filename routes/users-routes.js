@@ -12,11 +12,12 @@ const verifyToken = require("../controllers/verify-token");
 router.get("/", userController.grantAccess('readAny', 'Users'), userController.getUsers);
 router.get("/:cin", userController.getUserByCin);
 
-router.use(verifyToken); // why ? 
+//router.use(verifyToken); // why ? 
 
 router.post("/",userController.grantAccess('updateAny', 'Users'), userController.addUser);
-router.patch("/:cin", userController.updateUser);
+router.put("/:cin", userController.updateUser);
 
 router.delete("/:id",userController.grantAccess('deleteAny', 'Users') ,userController.deleteUser);
+
 
 module.exports = router;
