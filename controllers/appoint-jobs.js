@@ -58,7 +58,7 @@ const modifyAppointAndSendEmail = async (appoint) => {
   }catch (e){ console.log(e)}
 
   console.log("center from getCenter: ",center)
-  const date = moment()
+  const date = moment(appoint.user.creation_date)
   .add(2,'d') // 2 : number of days to add
   .toDate();
 

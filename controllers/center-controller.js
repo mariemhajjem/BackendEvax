@@ -121,7 +121,7 @@ const deposit = async (req, res, next) => {
   let vaccine;
   let center;
   try {
-    center = await Center.findOne({ name: name }).populate("type_vaccine");
+    center = await Center.findOne({ name: name }); 
     vaccine = await Vaccine.findOne({ vaccine_type: idVacc });
   } catch (error) {
     const err = new Error(
@@ -155,10 +155,17 @@ const deposit = async (req, res, next) => {
   }
   vaccine.stock -= Number(amount);
   center.number_vaccine += Number(amount);
-  center.type_vaccine = vaccine._id;
-  console.log(center);
+  center.type_vaccine = vaccine._id; 
+  let updatedCenter
   try {
     await center.save();
+  } catch (err) {
+    const error = new Error("Deposit failed. Please try again!");
+    error.code = 500;
+    return next(error);
+  }
+  try { 
+    updatedCenter = await Center.findOne({ name: name }).populate("type_vaccine");
   } catch (err) {
     const error = new Error("Deposit failed. Please try again!");
     error.code = 500;
@@ -171,7 +178,7 @@ const deposit = async (req, res, next) => {
     error.code = 500;
     return next(error);
   }
-  res.status(200).json({ center: center.toObject({ getters: true }) });
+  res.status(200).json({ center: updatedCenter.toObject({ getters: true }) });
 };
 
 const withdraw = async (req, res, next) => {
