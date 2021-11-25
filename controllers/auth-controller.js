@@ -1,12 +1,12 @@
+// const creds = require("../config/contact");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 
 const User = require("../models/user");
 const Center = require("../models/center");
-const { addAppoint } = require("./appoint-controller"); 
-const creds = require("../config/contact");
-// const creds = require("../../config/creds");
+const { addAppoint } = require("./appoint-controller");
+const creds = require("../config/creds");
 
 var transport = {
   service: "gmail",
@@ -37,7 +37,7 @@ const login = async (req, res, next) => {
 
   let user;
   try {
-    user = await User.findOne({ cin: cin,code:code });
+    user = await User.findOne({ cin: cin, code: code });
   } catch (error) {
     const err = new Error("Somthing went wrong. could not login!");
     err.code = 500;
@@ -49,7 +49,7 @@ const login = async (req, res, next) => {
     err.code = 404;
     return next(err);
   }
-  
+
   let token;
   try {
     token = jwt.sign(
@@ -208,7 +208,7 @@ const registerPharmacy = async (req, res, next) => {
         <p>This is your vaccination code : ${code} </p>
       `,
     });
-    transporter.close()
+    transporter.close();
   } catch (err) {
     const error = new Error("Creating user failed. Please try again!");
     error.code = 500;

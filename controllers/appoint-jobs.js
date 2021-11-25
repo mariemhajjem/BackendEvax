@@ -1,9 +1,9 @@
-const moment = require('moment');
+const moment = require("moment");
 
 const Appoint = require("../models/appointment");
-const Center = require("../models/center"); 
+const Center = require("../models/center");
 //const transporter = require("./email");
-const creds = require("../config/contact");
+const creds = require("../config/creds");
 const nodemailer = require("nodemailer");
 
 var transport = {
@@ -21,57 +21,65 @@ var transport = {
 
 var transporter = nodemailer.createTransport(transport);
 
-const SendEmails = async () => { 
+const SendEmails = async () => {
   const data = await SearchOldPeopleAppoints();
-  console.log("data from SendEmails : ",data)
-  if(data) MapThroughAppoints(data);   
+  console.log("data from SendEmails : ", data);
+  if (data) MapThroughAppoints(data);
 };
 
 const SearchOldPeopleAppoints = async () => {
   let appoints;
   try {
-    appoints = await Appoint.find({pharmacy: null, center: null }).populate('user')
-              .sort({'user.birthday': -1}); 
+    appoints = await Appoint.find({ pharmacy: null, center: null })
+      .populate("user")
+      .sort({ "user.birthday": -1 });
   } catch (error) {
     const err = new Error("Fetching appoints failed. please try again!");
     err.code = 500;
     return [];
   }
-  return appoints
+  return appoints;
 };
 
 const MapThroughAppoints = (appoints) => {
-  appoints.map(async (appoint) => { 
-    await modifyAppointAndSendEmail(appoint)
-    console.log("done...")
-  }) 
+  appoints.map(async (appoint) => {
+    await modifyAppointAndSendEmail(appoint);
+    console.log("done...");
+  });
 };
-const modifyAppointAndSendEmail = async (appoint) => { 
-  //change with findAll centers 
+const modifyAppointAndSendEmail = async (appoint) => {
+  //change with findAll centers
   //and verify dispo for each one and see if it finds a center or null!!
-  console.log("one appoint :",appoint)
-  if(!appoint) return;
+  console.log("one appoint :", appoint);
+  if (!appoint) return;
 
-  let center
-  try { 
-    center =await Center.findOne({city:appoint.user.city}) 
-  }catch (e){ console.log(e)}
+  let center;
+  try {
+    center = await Center.findOne({ city: appoint.user.city });
+  } catch (e) {
+    console.log(e);
+  }
 
-  console.log("center from getCenter: ",center)
+  console.log("center from getCenter: ", center);
   const date = moment()
-  .add(2,'d') // 2 : number of days to add
-  .toDate();
+    .add(2, "d") // 2 : number of days to add
+    .toDate();
 
-  if(!center) return;
+  if (!center) return;
 
-  if(verifyDispo(center,date)){
+  if (verifyDispo(center, date)) {
     try {
-      const ap= await Appoint.findByIdAndUpdate({_id : appoint._id}, {center:center._id,appointmentDate: date})
-      console.log(ap)
-    }catch (e){ console.log(e)}
-    
+      const ap = await Appoint.findByIdAndUpdate(
+        { _id: appoint._id },
+        { center: center._id, appointmentDate: date }
+      );
+      console.log(ap);
+    } catch (e) {
+      console.log(e);
+    }
+
     //send email
-    console.log('sending email rdv...')
+    console.log("sending email rdv...");
     transporter.verify((error, success) => {
       if (error) {
         console.log(error);
@@ -89,17 +97,18 @@ const modifyAppointAndSendEmail = async (appoint) => {
         <p>This is your appointment date : ${date} in ${center.name}</p>
       `,
     });
-    transporter.close()
+    transporter.close();
   }
-}
-
-
-const verifyDispo = async (center,date) => {
-  const appoints = await Appoint.find({pharmacy: null,center:center._id ,appointmentDate: date})
-  console.log("appoints from verifyDispo : ",appoints)
-  return appoints.length < center.center_capacity * 8 * 2
 };
 
+const verifyDispo = async (center, date) => {
+  const appoints = await Appoint.find({
+    pharmacy: null,
+    center: center._id,
+    appointmentDate: date,
+  });
+  console.log("appoints from verifyDispo : ", appoints);
+  return appoints.length < center.center_capacity * 8 * 2;
+};
 
-
-exports.SendEmails = SendEmails
+exports.SendEmails = SendEmails;
