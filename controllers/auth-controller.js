@@ -5,8 +5,7 @@ const nodemailer = require("nodemailer");
 const User = require("../models/user");
 const Center = require("../models/center");
 const { addAppoint } = require("./appoint-controller"); 
-const creds = require("../config/contact");
-// const creds = require("../../config/creds");
+const creds = require("../config/contact"); 
 
 var transport = {
   service: "gmail",
@@ -123,7 +122,7 @@ const registerCenter = async (req, res, next) => {
     });
     transporter.sendMail({
       to: req.body.email,
-      from: "mariemhajjem10@gmail.com",
+      from: "evax.isamm@gmail.com",
       subject: "Vaccination code",
       html: `
         <p>Hi ${firstname} ${lastname} !</p>
@@ -201,7 +200,7 @@ const registerPharmacy = async (req, res, next) => {
     });
     transporter.sendMail({
       to: req.body.email,
-      from: "mariemhajjem10@gmail.com",
+      from: "evax.isamm@gmail.com",
       subject: "Vaccination code",
       html: `
         <p>Hi ${firstname} ${lastname} !</p>
