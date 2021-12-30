@@ -7,10 +7,10 @@ const verifyToken = require("../controllers/verify-token");
 router.get("/", userController.getUsers);
 router.get("/:cin", userController.getUserByCin);
 
-router.use(verifyToken);
+//router.use(verifyToken);
 
 router.post("/", userController.addUser);
-router.patch("/:cin", userController.updateUser);
+router.put("/:cin", userController.updateUser);
 
 router.delete("/:id", userController.deleteUser);
 

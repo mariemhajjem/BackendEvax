@@ -38,7 +38,7 @@ const getUserByCin = async (req, res, next) => {
 };
 
 const addUser = async (req, res, next) => {
-  const { firstname, lastname, cin, email, birthday, address } = req.body;
+  const { firstname, lastname, cin, email, birthday, role,governorate,city } = req.body;
 
   let existingUser;
   try {
@@ -63,6 +63,7 @@ const addUser = async (req, res, next) => {
     birthday,
     governorate,
     city,
+    role
   });
 
   try {
@@ -84,7 +85,7 @@ const updateUser = async (req, res, next) => {
 
   let updatedUser;
   try {
-    updatedUser = await User.findOne({ cin: userCin });
+    updatedUser = await User.findOne({ _id: userCin });
   } catch (error) {
     const err = new Error("Somthing went wrong. could not update user!");
     err.code = 500;
