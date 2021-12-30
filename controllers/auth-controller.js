@@ -5,8 +5,8 @@ const nodemailer = require("nodemailer");
 
 const User = require("../models/user");
 const Center = require("../models/center");
-const { addAppoint } = require("./appoint-controller"); 
-const creds = require("../config/contact"); 
+const { addAppoint } = require("./appoint-controller");
+const creds = require("../config/contact");
 
 var transport = {
   service: "gmail",
@@ -63,7 +63,7 @@ const login = async (req, res, next) => {
     return next(error);
   }
 
-  res.json({ token: token });
+  res.json({ token: token, user: user });
 };
 
 const registerCenter = async (req, res, next) => {
