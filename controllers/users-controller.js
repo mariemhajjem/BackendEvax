@@ -61,8 +61,11 @@ const getUserByCin = async (req, res, next) => {
 };
 
 const addUser = async (req, res, next) => {
-  console.log('**********************************s')
+
+
+ 
   const { firstname, lastname, cin, email, birthday, governorate, role, center,city } = req.body;
+
 
   let existingUser;
   try {

@@ -4,8 +4,10 @@ const userSchema = new mongoose.Schema({
   cin: { type: String, required: true, unique: true },
   firstname: { type: String, required: true },
   lastname: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  birthday: { type: Number, required: true },
+
+  email: { type: String, required: true },
+  birthday: { type: Date, required: true },
+
   governorate: { type: String, required: true },
   city: { type: String, required: true },
   code: { type: String },
