@@ -9,6 +9,7 @@ router.get("/:cin", userController.getUserByCin);
 
 //router.use(verifyToken);
 
+
 router.post("/", userController.addUser);
 router.put("/:cin", userController.updateUser);
 
