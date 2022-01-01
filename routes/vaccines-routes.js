@@ -7,6 +7,6 @@ router.get("/all", VaccinesController.getVaccines);
 router.post("/", VaccinesController.addVaccine);
 router.put("/:id", VaccinesController.updateVaccine);
 
-router.delete("/:id", VaccinesController.deleteVaccine);
+router.delete("/delete/:vaccine_type", VaccinesController.deleteVaccine);
 router.get("/:id", VaccinesController.getVaccineById);
 module.exports = router;

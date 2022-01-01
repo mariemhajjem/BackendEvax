@@ -1,11 +1,34 @@
 const mongoose = require("mongoose");
 
 const User = require("../models/user");
+const { roles } = require('./roles');
+
+
+
+const grantAccess = (action, resource) => {
+  console.log(action,resource)
+  return async (req, res, next) => {
+   try {
+     //a modifier 
+    const permission = roles.can('admin')[action](resource);
+    console.log('permission',permission);
+    if (!permission.granted) {
+     return res.status(401).json({
+      error: "You don't have enough permission to perform this action"
+     });
+    }
+    next()
+   } catch (error) {
+    console.log(error)
+   }
+  }
+ }
 
 const getUsers = async (req, res, next) => {
   let users;
   try {
     users = await User.find();
+    console.log('******************************', )
   } catch (error) {
     const err = new Error("Fetching users failed. please try again!");
     err.code = 500;
@@ -38,7 +61,11 @@ const getUserByCin = async (req, res, next) => {
 };
 
 const addUser = async (req, res, next) => {
-  const { firstname, lastname, cin, email, birthday, role,governorate,city } = req.body;
+
+
+ 
+  const { firstname, lastname, cin, email, birthday, governorate, role, center,city } = req.body;
+
 
   let existingUser;
   try {
@@ -53,7 +80,7 @@ const addUser = async (req, res, next) => {
     const err = new Error("User already exist, please check Users List.");
     err.code = 500;
     return next(err);
-  }
+  } 
 
   const createdUser = new User({
     firstname,
@@ -63,11 +90,14 @@ const addUser = async (req, res, next) => {
     birthday,
     governorate,
     city,
-    role
+    role : role || "enrolled",
+    centers: center || 'NULL'
+
   });
 
   try {
     await createdUser.save({}, async (err, clt) => {
+      console.log("idin ahmed fi ")
       if (err) throw err;
     });
   } catch (err) {
@@ -80,8 +110,10 @@ const addUser = async (req, res, next) => {
 };
 
 const updateUser = async (req, res, next) => {
-  const { firstname, lastname, cin, email, address, birthday } = req.body;
+  console.log('***************************', req.body)
+  const { firstname, lastname, cin, email, governorate, birthday, role, center } = req.body;
   const userCin = req.params.cin;
+  console.log('***************************', firstname)
 
   let updatedUser;
   try {
@@ -97,7 +129,9 @@ const updateUser = async (req, res, next) => {
   updatedUser.cin = cin;
   updatedUser.email = email;
   updatedUser.birthday = birthday;
-  updatedUser.address = address;
+  updatedUser.governorate = governorate;
+  updatedUser.role = role;
+  updatedUser.center = center;
 
   try {
     await updatedUser.save({}, async (err, clt) => {
@@ -116,6 +150,7 @@ const updateUser = async (req, res, next) => {
 
 const deleteUser = async (req, res, next) => {
   const userId = req.params.id;
+  console.log('called*********************************')
 
   let user;
   try {
@@ -151,3 +186,4 @@ exports.addUser = addUser;
 exports.getUserByCin = getUserByCin;
 exports.updateUser = updateUser;
 exports.deleteUser = deleteUser;
+exports.grantAccess = grantAccess;
