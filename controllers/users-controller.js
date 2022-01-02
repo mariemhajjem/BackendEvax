@@ -45,19 +45,21 @@ const getUserByCin = async (req, res, next) => {
   let user;
   try {
     user = await User.findOne({ cin: userCin });
+    console.log('userrr',user);
   } catch (error) {
     const err = new Error("Somthing went wrong. could not find user!");
     err.code = 500;
     return next(err);
   }
 
-  if (!user) {
-    const err = new Error("No user found with the provided CIN!");
-    err.code = 404;
-    return next(err);
-  }
 
-  res.json({ user: user.toObject({ getters: true }) });
+  if(user)
+     res.status(200).json({ user: user.toObject({ getters: true }) });
+  else 
+    res.status(500).json({
+      message: 'user not exist',
+      code: "500"
+  });
 };
 
 const addUser = async (req, res, next) => {
@@ -108,42 +110,42 @@ const addUser = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
   console.log('***************************', req.body)
-  const { firstname, lastname, cin, email, governorate, birthday, role, center } = req.body;
-  const userCin = req.params.cin;
-  console.log('***************************', firstname)
+  // const { firstname, lastname, cin, email, governorate, birthday, role, center } = req.body;
+  // const userCin = req.params.cin;
+
+  const userCin = req.body.cin;
+  var userObject;
 
   let updatedUser;
   try {
-    updatedUser = await User.findOne({ _id: userCin });
+    updatedUser = await User.findOne({ cin: userCin });
+    userObject = updatedUser;
   } catch (error) {
+    console.error('error',error);
     const err = new Error("Somthing went wrong. could not update user!");
     err.code = 500;
     return next(err);
   }
 
-  updatedUser.firstname = firstname;
-  updatedUser.lastname = lastname;
-  updatedUser.cin = cin;
-  updatedUser.email = email;
-  updatedUser.birthday = birthday;
-  updatedUser.governorate = governorate;
-  updatedUser.role = role;
-  updatedUser.center = center;
-
-  try {
-    await updatedUser.save({}, async (err, clt) => {
-      if (err) throw err;
-    });
-  } catch (err) {
+  if(updatedUser)
+  updatedUser={
+    ...updatedUser,
+    ...req.body
+  };
+  User.updateOne({ cin: userCin }, { $set:req.body})
+    .then(result => {
+        console.log('enter success');
+        res
+        .status(200)
+        .json({ user: userObject.toObject({ getters: true }) });
+      } )
+   .catch (err=>{
+    console.error('sec err',err);
     const error = new Error("Updating user failed. Please try again!");
     error.code = 500;
     return next(error);
-  }
-
-  res
-    .status(200)
-    .json({ updatedUser: updatedUser.toObject({ getters: true }) });
-};
+  });
+}
 
 const deleteUser = async (req, res, next) => {
   const userId = req.params.id;
