@@ -45,7 +45,9 @@ const login = async (req, res, next) => {
   }
 
   if (!user) {
-    const err = new Error("Invalid credentials provided, could not login.");
+    const err = new Error(
+      "Identifiants fournis non valides, impossible de se connecter."
+    );
     err.code = 404;
     return next(err);
   }
@@ -79,7 +81,7 @@ const registerCenter = async (req, res, next) => {
     return next(err);
   }
   if (addedUser) {
-    const err = new Error("User already exists, please login instead.");
+    const err = new Error("Identifiants fournis deja utilisés.");
     err.code = 400;
     return next(err);
   }
