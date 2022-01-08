@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 module.exports = async function () {
 
     try {
-        await mongoose.connect("mongodb+srv://haikel:haikel@cluster0.catdk.mongodb.net/myFirstDatabase?retryWrites=true&w=majority" 
+        await mongoose.connect("mongodb://localhost:27017/projet" 
         , {
             useNewUrlParser: true,
             useCreateIndex: true,

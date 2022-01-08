@@ -12,7 +12,6 @@ const appointRoutes = require("./routes/appoint-routes");
 const vaccinesRoutes = require("./routes/vaccines-routes");
 const openDayRoutes = require("./routes/openDay-routes");
 
-const PORT = 5000;
 
 
 
